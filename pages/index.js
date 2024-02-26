@@ -3,17 +3,9 @@ import { useState } from "react";
 import HTMLEditor from "../components/HTMLEditor";
 import PreviewScreen from "../components/PreviewScreen";
 import JSONEditor from "@/components/JsonEditor";
-import AWS from "aws-sdk";
 import JSONPreview from "@/components/JsonPreview";
 import InputFields from "@/components/InputFields";
-
-AWS.config.update({
-  accessKeyId: "AKIATCKATGASYZMR3JWF",
-  secretAccessKey: "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",
-  region: "ap-south-1",
-});
-
-const sesv2 = new AWS.SES({ apiVersion: "2019-09-27" });
+import sendEmail from "@/utils/Mailer";
 
 const Home = () => {
   const [subject, setSubject] = useState("");
@@ -37,51 +29,15 @@ const Home = () => {
     }
   };
 
-  const sendEmails = async () => {
-    // Check if csvData is defined
-    if (!csvData) {
-      console.error("CSV data is not defined.");
-      return;
-    }
+  // console.log(subject, displayText, from, replyTo);
 
-    // Iterate through each row in the CSV data
-    for (const row of csvData) {
-      // Log the entire row data to check for the presence of 'email' field
-      console.log("CSV Row Data:", row);
-
-      // Check if the row is not empty and 'email' field is present
-      if (!row || row.length !== 1 || !row[0]) {
-        console.error("Email address is undefined. Skipping.");
-        continue;
-      }
-
-      const email = row[0]; // Extract the email address from the array
-
-      console.log("Debug: Email to be sent:", email);
-      console.log("Debug: From:", from);
-      console.log("Debug: Subject:", subject);
-      // console.log("Debug: HTML Content:", htmlContent);
-
-      // Send email using SES
-      try {
-        const result = await sesv2
-          .sendEmail({
-            Source: from,
-            Destination: { ToAddresses: [email] },
-            Message: {
-              Body: { Html: { Charset: "UTF-8", Data: htmlContent } },
-              Subject: { Charset: "UTF-8", Data: subject },
-            },
-          })
-          .promise();
-
-        console.log("Email sent to", email);
-        console.log("SES Response:", result);
-      } catch (error) {
-        console.error("Error sending email to", email, ":", error);
-      }
-    }
+  const sendEmails = () => {
+    sendEmail(from, subject, htmlContent, displayText, jsonContent);
   };
+
+  // Assuming your JSON content structure is like this:
+  // const jsonContent = [{ email: "example1@example.com" }, { email: "example2@example.com" }, ...];
+
   const containerStyles = {
     padding: "1rem",
     borderRadius: "24px 24px 16px 16px",
@@ -125,7 +81,7 @@ const Home = () => {
           <JSONPreview jsonContent={jsonContent} onChange={setJsonContent} />
         </div>
       </div>
-      {/* <button onClick={sendEmails}>Send Emails</button> */}
+      <button onClick={sendEmails}>Send Emails</button>
     </div>
   );
 };

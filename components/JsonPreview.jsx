@@ -14,7 +14,7 @@ const JSONPreview = ({ jsonContent }) => {
     transition: "transform 0.3s, background 0.3s",
     // transform: isHovered ? "scale(1.02)" : "scale(1)",
   };
-  console.log("JSON Content:", jsonContent);
+  // console.log("JSON Content:", jsonContent);
 
   if (!jsonContent || !Array.isArray(jsonContent) || jsonContent.length === 0) {
     return (

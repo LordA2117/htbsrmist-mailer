@@ -41,19 +41,19 @@ const InputFields = ({
   };
   const mails = [
     {
-      value: "community@htbsrmist.tech",
+      value: "HackTheBox SRMIST <community@htbsrmist.tech>",
       label: "community@htbsrmist.tech",
     },
     {
-      value: "technical@htbsrmist.tech",
+      value: "HackTheBox SRMIST <technical@htbsrmist.tech>",
       label: "technical@htbsrmist.tech",
     },
     {
-      value: "corporate@htbsrmist.tech",
+      value: "HackTheBox SRMIST <corporate@htbsrmist.tech>",
       label: "corporate@htbsrmist.tech",
     },
     {
-      value: "creatives@htbsrmist.tech",
+      value: "HackTheBox SRMIST <creatives@htbsrmist.tech>",
       label: "creatives@htbsrmist.tech",
     },
   ];
