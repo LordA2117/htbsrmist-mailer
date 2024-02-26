@@ -2,10 +2,27 @@
 import React from "react";
 
 const JSONPreview = ({ jsonContent }) => {
+  const containerStyles = {
+    padding: "1rem",
+    borderRadius: "24px 24px 16px 16px",
+    background:
+      "linear-gradient(268.56deg, rgba(150, 150, 150, 0.1), rgba(150, 150, 150, 0.1))",
+
+    boxShadow:
+      "1.2396273612976074px 1.2396273612976074px 13.64px rgba(0, 0, 0, 0.25) inset",
+    border: "0.6px solid #545151",
+    transition: "transform 0.3s, background 0.3s",
+    // transform: isHovered ? "scale(1.02)" : "scale(1)",
+  };
   console.log("JSON Content:", jsonContent);
 
   if (!jsonContent || !Array.isArray(jsonContent) || jsonContent.length === 0) {
-    return <p>No valid JSON data to display</p>;
+    return (
+      <div style={containerStyles} className="h-[500px]">
+        <h2 className="text-center text-3xl">JSON Preview</h2>
+        <p>No valid JSON data to display</p>
+      </div>
+    );
   }
 
   const renderTableHeader = () => {
@@ -48,10 +65,21 @@ const JSONPreview = ({ jsonContent }) => {
       </tbody>
     );
   };
+  // const containerStyles = {
+  //   padding: "1rem",
+  //   borderRadius: "24px 24px 16px 16px",
+  //   background:
+  //     "linear-gradient(268.56deg, rgba(150, 150, 150, 0.1), rgba(150, 150, 150, 0.1))",
 
+  //   boxShadow:
+  //     "1.2396273612976074px 1.2396273612976074px 13.64px rgba(0, 0, 0, 0.25) inset",
+  //   border: "0.6px solid #545151",
+  //   transition: "transform 0.3s, background 0.3s",
+  //   // transform: isHovered ? "scale(1.02)" : "scale(1)",
+  // };
   return (
-    <div>
-      <h2>JSON Preview</h2>
+    <div style={containerStyles} className="h-[500px] overflow-auto">
+      <h2 className="text-center text-3xl">JSON Preview</h2>
       <table style={{ borderCollapse: "collapse", width: "100%" }}>
         {renderTableHeader()}
         {renderTableBody()}

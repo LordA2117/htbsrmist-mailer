@@ -13,6 +13,7 @@ const HTMLEditor = ({ value, onChange }) => {
         theme="terminal"
         name="html-editor"
         style={{
+          color: "white",
           height: "100vh",
           width: "100%",
         }}
