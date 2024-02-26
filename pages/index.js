@@ -1,6 +1,6 @@
 // pages/index.js
 import { useState } from "react";
-import HTMLEditor from "../components/HTMLEditor";
+import HTMLEditor from "../components/HtmlEditor";
 import PreviewScreen from "../components/PreviewScreen";
 import JSONEditor from "@/components/JsonEditor";
 import JSONPreview from "@/components/JsonPreview";
