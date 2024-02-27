@@ -109,9 +109,9 @@ const Home = () => {
       <div className="flex justify-center">
         <Button
           onClick={sendEmails}
-          color="primary"
+          color="success"
           variant="contained"
-          size="large"
+          // size="large"
           style={{ backgroundColor: "#4CAF50" }}
           disabled={sendEmailLoading}
         >
