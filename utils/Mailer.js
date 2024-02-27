@@ -14,7 +14,8 @@ const sendEmail = async (
   subject,
   htmlContent,
   displayText,
-  jsonContent
+  jsonContent,
+  onEmailSent
 ) => {
   // Check if jsonContent is defined
   if (!jsonContent) {
@@ -47,6 +48,7 @@ const sendEmail = async (
 
       console.log("Email sent to", email);
       console.log("SES Response:", result);
+      onEmailSent(email);
     } catch (error) {
       console.error("Error sending email to", email, ":", error);
     }
