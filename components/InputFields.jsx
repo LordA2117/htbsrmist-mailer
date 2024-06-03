@@ -59,7 +59,7 @@ const InputFields = ({
   ];
   return (
     <div style={containerStyles} className="w-[50%] mx-auto">
-      <h1 className="text-center text-3xl">Mail Config</h1>
+      <h1 className="text-center text-3xl p-4">Mail Config</h1>
       <div className=" flex justify-evenly">
         <div>
           <div>
