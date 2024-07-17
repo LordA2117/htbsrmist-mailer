@@ -31,6 +31,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
           content="HackTheBox SRMIST focuses on training the next-gen of cyber-warriors transforming cyberspace in SRMIST and beyond."
         />
         <meta property="og:image" content="/favicon.svg" />
+        <link rel="icon" href="/favicon.svg" />
         <meta property="twitter:card" content="summary_large_image" />\
         <meta property="twitter:url" content="https://www.htbsrmist.tech" />
         <meta property="twitter:site" content="@htbsrmist" />
