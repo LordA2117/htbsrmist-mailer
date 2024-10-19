@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import connectDB from "./lib/connectDB";
 import CredentialsProvider from "next-auth/providers/credentials";
-import MailerUsers from "../../models/userModel";
+import MailerUsers from "../../../utils/models/userModel";
 import bcrypt from "bcryptjs";
 connectDB();
 

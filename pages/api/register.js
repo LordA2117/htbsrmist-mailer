@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import MailerUsers from "../models/userModel";
+import MailerUsers from "../../utils/models/userModel";
 import connectDB from "./auth/lib/connectDB";
 
 export default async function handler(req, res) {
