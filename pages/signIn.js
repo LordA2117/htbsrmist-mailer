@@ -14,7 +14,9 @@ import {
   Button,
   Typography,
   Alert,
+  IconButton,
 } from "@mui/material";
+import Fingerprint from '@mui/icons-material/Fingerprint';
 
 export default function signInPage({ csrfToken, providers }) {
   const [email, setEmail] = useState("");
@@ -57,77 +59,119 @@ export default function signInPage({ csrfToken, providers }) {
   // };
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        backgroundColor: "black",
+    <Box 
+      className="themes-wrapper"
+      sx={{ 
+        backgroundColor: '#121212', // Dark background
+        color: '#fff', // Text color for light on dark background
+        width: '100%', 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        px: 4 
       }}
     >
       <Box
         component="form"
         onSubmit={signInUser}
         sx={{
-          backgroundColor: "#12273e",
-          border: "2px solid #9FEF00",
+          backgroundColor: "#1e1e1e", // Dark card background
+          border: "2px solid #9FEF00", // Accent color for border
           p: 4,
           borderRadius: 2,
           boxShadow: 3,
-          width: "100%",
+          width: '100%',
+          maxWidth: '400px',
+          color: '#fff'
         }}
       >
-        <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-        <Typography variant="h4" component="h1" color="#9FEF00" gutterBottom>
-          Log In
-        </Typography>
-        <TextField
-          label="Email address"
-          type="email"
-          variant="outlined"
-          fullWidth
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          InputProps={{
-            style: { color: "#9FEF00" },
-          }}
-          InputLabelProps={{
-            style: { color: "#9FEF00" },
-          }}
-        />
-        <TextField
-          label="Password"
-          type="password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          InputProps={{
-            style: { color: "#9FEF00" },
-          }}
-          InputLabelProps={{
-            style: { color: "#9FEF00" },
-          }}
-        />
+        <Box sx={{ mb: 2 }}>
+          <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
+          <Typography variant="h4" component="h3" fontWeight="bold" gutterBottom sx={{ color: '#9FEF00' }}>
+            Log In
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ color: '#b0b0b0' }}>
+            Enter your email below to login to your account.
+          </Typography>
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            variant="outlined"
+            color="primary"
+            InputLabelProps={{
+              style: { color: '#fff' }, // Label color
+            }}
+            sx={{
+              input: { color: '#fff' }, // Text color inside input
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#9FEF00', // Border color for dark theme
+                },
+                '&:hover fieldset': {
+                  borderColor: '#7FCE00', // Hover border color
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#9FEF00', // Focus border color
+                },
+              },
+            }}
+          />
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            variant="outlined"
+            color="secondary"
+            InputLabelProps={{
+              style: { color: '#fff' }, // Label color
+            }}
+            sx={{
+              input: { color: '#fff' }, // Text color inside input
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#9FEF00', // Border color for dark theme
+                },
+                '&:hover fieldset': {
+                  borderColor: '#7FCE00', // Hover border color
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#9FEF00', // Focus border color
+                },
+              },
+            }}
+          />
+        </Box>
+
         {message && (
-          <Alert severity="error" sx={{ mt: 2 }}>
+          <Alert severity="error" sx={{ mb: 2, backgroundColor: '#ff5252', color: '#fff' }}>
             {message}
           </Alert>
         )}
-        <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-        <button
-          onClick={signInUser}
-          className="w-full bg-[#9fef00d7] text-2xl rounded-3xl tracking-wider text-black py-2 px-4 hover:bg-[#9FEF00]"
-        >
-          Log in
-        </button>
+
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <IconButton
+          color="success"
+            onClick={signInUser}
+          >
+            <Fingerprint /> Log In
+          </IconButton>
         </Box>
-        {/* <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+
+        {/* Uncomment below code for sign-up button */}
+        {/* <Box sx={{ mt: 2 }}>
           <Button
-            onClick={signupUser}
             variant="contained"
             fullWidth
             sx={{
@@ -142,7 +186,7 @@ export default function signInPage({ csrfToken, providers }) {
           </Button>
         </Box> */}
       </Box>
-    </Container>
+    </Box>
   );
 }
 

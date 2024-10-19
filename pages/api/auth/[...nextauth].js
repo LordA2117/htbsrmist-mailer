@@ -27,6 +27,18 @@ export default NextAuth({
   ],
   secret: "secret",
   database: process.env.NEXT_PUBLIC_MONGODB_URI,
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token = { ...token, ...user };
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.user = token;
+      return session;
+    },
+  },
 });
 
 const signInUser = async ({ password, user }) => {

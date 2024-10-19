@@ -8,7 +8,7 @@ const connectDB = async () => {
 
   try {
     const URL = process.env.NEXT_PUBLIC_MONGODB_URI || "mongodb://localhost:27017/";
-    const dbName = process.env.DB_NAME || "mailer";
+    const dbName = process.env.DB_NAME || "htb_mailer";
     
     // Construct MongoDB URI with the database name
     const mongoURI = `${URL}${dbName}`;

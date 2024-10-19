@@ -56,6 +56,10 @@ const InputFields = ({
       value: "HackTheBox SRMIST <creatives@htbsrmist.tech>",
       label: "creatives@htbsrmist.tech",
     },
+    {
+      value: "HackTheBox SRMIST <security@htbsrmist.tech>",
+      label: "security@htbsrmist.tech",
+    },
   ];
   return (
     <div style={containerStyles} className="w-[50%] mx-auto">
