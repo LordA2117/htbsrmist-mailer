@@ -12,7 +12,6 @@ const connectDB = async () => {
     
     // Construct MongoDB URI with the database name
     const mongoURI = `${URL}${dbName}`;
-
     await mongoose.connect(mongoURI);
 
     console.log("Connected Successfully");

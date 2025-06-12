@@ -47,7 +47,7 @@ const JSONEditor = ({ value, onParse }) => {
       <h1 className="text-center text-3xl">JSON Editor</h1>
       <textarea
         className="text-black"
-        placeholder="Start typing here ...."
+        placeholder='[{"email":"test@gmail.com"}]'
         value={textareaValue}
         onChange={handleTextareaChange}
         style={{ width: "100%", height: "400px" }}
