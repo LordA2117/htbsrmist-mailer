@@ -16,6 +16,8 @@
     "@mui/material": "^5.15.11",
     "ace-builds": "^1.32.6",
     "aws-sdk": "^2.1565.0",
+    "lucide-react": "^0.515.0",
+    "mongoose": "^8.15.2",
     "next": "14.1.0",
     "react": "^18",
     "react-ace": "^10.1.0",
