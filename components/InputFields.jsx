@@ -41,25 +41,29 @@ const InputFields = ({
   };
   const mails = [
     {
-      value: "HackTheBox SRMIST <community@htbsrmist.tech>",
-      label: "community@htbsrmist.tech",
+      value: "HackTheBox CHENNAI <community@htbchennai.in>",
+      label: "community@htbchennai.in",
     },
     {
-      value: "HackTheBox SRMIST <technical@htbsrmist.tech>",
-      label: "technical@htbsrmist.tech",
+      value: "HackTheBox CHENNAI <technical@htbchennai.in>",
+      label: "technical@htbchennai.in",
     },
     {
-      value: "HackTheBox SRMIST <corporate@htbsrmist.tech>",
-      label: "corporate@htbsrmist.tech",
+      value: "HackTheBox CHENNAI <corporate@htbchennai.in>",
+      label: "corporate@htbchennai.in",
     },
     {
-      value: "HackTheBox SRMIST <creatives@htbsrmist.tech>",
-      label: "creatives@htbsrmist.tech",
+      value: "HackTheBox CHENNAI <creatives@htbchennai.in>",
+      label: "creatives@htbchennai.in",
+    },
+    {
+      value: "HackTheBox CHENNAI <security@htbchennai.in>",
+      label: "security@htbchennai.in",
     },
   ];
   return (
     <div style={containerStyles} className="w-[50%] mx-auto">
-      <h1 className="text-center text-3xl">Mail Config</h1>
+      <h1 className="text-center text-3xl p-4">Mail Config</h1>
       <div className=" flex justify-evenly">
         <div>
           <div>

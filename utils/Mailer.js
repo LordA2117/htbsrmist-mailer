@@ -4,7 +4,7 @@ import AWS from "aws-sdk";
 AWS.config.update({
   accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-  region: "ap-south-1",
+  region: process.env.NEXT_PUBLIC_AWS_REGION,
 });
 
 const sesv2 = new AWS.SES({ apiVersion: "2019-09-27" });
