@@ -125,53 +125,47 @@ const Home = () => {
 
   return (
     <div className="min-h-screen text-white">
-      {/* Add this new header div */}
-      <div className="flex justify-end items-start p-4">
-        <Button
-          variant="outlined"
-          color="success"
-          onClick={() => router.push('/templates')}
-          sx={{
-            color: '#4CAF50',
-            borderColor: '#4CAF50',
-            '&:hover': {
-              borderColor: '#388E3C',
-              backgroundColor: 'rgba(76, 175, 80, 0.04)',
-            },
-          }}
-        >
-          Templates
-        </Button>
-      </div>
       <header>
-        <div className="flex justify-between items-center p-4 text-white">
-          <h1 className="text-2xl">Email Sender</h1>
-          <div className="flex gap-3 justify-items-center align-middle items-center text-white">
-            <Button
-              size="large"
-              variant="outlined"
-              color="success"
-              onClick={(e) => {
-                e.preventDefault();
-                router.push("/signUp")
-              }}
-            >
-              Add User
-            </Button>
-            <Button
-              size="large"
-              variant="outlined"
-              color="error"
-              onClick={(e) => {
-                e.preventDefault();
-                signOut();
-              }}
-            >
-              Sign Out
-            </Button>
-          </div>
-        </div>
-      </header>
+  <div className="flex justify-between items-center p-4 text-white">
+    <h1 className="text-2xl">Email Sender</h1>
+    <div className="flex gap-3 justify-items-center align-middle items-center text-white">
+      <Button
+        size="large"
+        variant="outlined"
+        color="success"
+        onClick={(e) => {
+          e.preventDefault();
+          router.push("/templates");
+        }}
+      >
+        Templates
+      </Button>
+      <Button
+        size="large"
+        variant="outlined"
+        color="success"
+        onClick={(e) => {
+          e.preventDefault();
+          router.push("/signUp");
+        }}
+      >
+        Add User
+      </Button>
+      <Button
+        size="large"
+        variant="outlined"
+        color="error"
+        onClick={(e) => {
+          e.preventDefault();
+          signOut();
+        }}
+      >
+        Sign Out
+      </Button>
+    </div>
+  </div>
+</header>
+
       <InputFields
         subject={subject}
         displayText={displayText}
@@ -187,26 +181,28 @@ const Home = () => {
           <div className="flex justify-between items-center mb-2">
             <h1 className="text-3xl">Mail Editor</h1>
             <select
-              className="bg-gray-800 text-white px-4 py-2 rounded"
-              onChange={(e) => {
-                const selected = templates.find(tpl => tpl.name === e.target.value);
-                if (selected) {
-                  setSubject(selected.subject || "");
-                  setDisplayText(selected.displayText || "");
-                  setFrom(selected.from || "");
-                  setReplyTo(selected.replyTo || "");
-                  setHtmlContent(selected.htmlContent || "");
-                }
-              }}
-              value=""
-            >
-              <option value="">Templates</option>
-              {templates.map((tpl, idx) => (
-                <option key={idx} value={tpl.name}>
-                  {tpl.name}
-                </option>
-              ))}
-            </select>
+    className="bg-gray-800 text-white px-4 py-2 rounded"
+    onChange={(e) => {
+        const selected = templates.find(tpl => tpl.name === e.target.value);
+        if (selected) {
+            setSubject(selected.subject || "");
+            setDisplayText(selected.displayText || "");
+            setFrom(selected.from || "");
+            setReplyTo(selected.replyTo || "");
+            setHtmlContent(selected.htmlContent || "");
+            // Store the full template in localStorage
+            localStorage.setItem('selectedTemplate', JSON.stringify(selected));
+        }
+    }}
+    value=""
+>
+    <option value="">Templates</option>
+    {templates.map((tpl, idx) => (
+        <option key={idx} value={tpl.name}>
+            {tpl.name}
+        </option>
+    ))}
+</select>
           </div>
           <HTMLEditor value={htmlContent} onChange={handleHTMLChange} />
         </div>
