@@ -1,8 +1,8 @@
-import dbConnect from '../../../utils/db';
+import connectDB from '../../../utils/db';
 import Template from '../../../models/Template';
 
 export default async function handler(req, res) {
-  await dbConnect();
+  await connectDB();
   const { id } = req.query;
 
   try {

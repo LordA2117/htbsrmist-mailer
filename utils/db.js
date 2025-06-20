@@ -1,25 +1,24 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/email_templates';
-
-// Simple connection without caching for development
-async function dbConnect() {
-  // If already connected, return existing connection
-  if (mongoose.connection.readyState === 1) {
-    return mongoose.connection;
+const connectDB = async () => {
+  if (mongoose.connection.readyState) {
+    console.log("Already connected");
+    return;
   }
 
   try {
-    await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('Connected to MongoDB at:', MONGODB_URI);
-    return mongoose.connection;
-  } catch (error) {
-    console.error('MongoDB connection error:', error);
-    throw error;
-  }
-}
+    const URL = process.env.NEXT_PUBLIC_MONGODB_URI || "mongodb://localhost:27017/";
+    const dbName = process.env.DB_NAME || "htb_mailer";
+    
+    // Construct MongoDB URI with the database name
+    const mongoURI = `${URL}${dbName}`;
+    await mongoose.connect(mongoURI);
 
-export default dbConnect;
+    console.log("Connected Successfully");
+  } catch (err) {
+    console.error("Connection error", err);
+    throw err;
+  }
+};
+
+export default connectDB;
