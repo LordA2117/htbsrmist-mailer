@@ -1,33 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { 
-  ArrowLeft, 
-  Plus, 
-  Save, 
-  X, 
-  Edit, 
-  Trash2, 
-  ExternalLink 
-} from 'lucide-react';
+import { ArrowLeft, Plus, Save, X, Edit, Trash2 } from 'lucide-react';
+import HTMLEditor from "@/components/HtmlEditor";
+import PreviewScreen from "@/components/PreviewScreen";
+import { ChevronsDown, ChevronsUp } from 'lucide-react'
 
 const TemplatesPage = () => {
     const router = useRouter();
     const [templates, setTemplates] = useState([]);
     const [editingId, setEditingId] = useState(null);
+    const [showHtmlEditor, setShowHtmlEditor] = useState(false);
+    const [htmlContent, setHtmlContent] = useState("");
     const [formData, setFormData] = useState({
         name: '',
         subject: '',
         displayText: '',
-        from: '',
-        replyTo: ''
+        htmlContent: ''
     });
-
-    const emailOptions = [
-        { value: "HackTheBox SRMIST <community@htbsrmist.tech>", label: "community@htbsrmist.tech" },
-        { value: "HackTheBox SRMIST <technical@htbsrmist.tech>", label: "technical@htbsrmist.tech" },
-        { value: "HackTheBox SRMIST <corporate@htbsrmist.tech>", label: "corporate@htbsrmist.tech" },
-        { value: "HackTheBox SRMIST <creatives@htbsrmist.tech>", label: "creatives@htbsrmist.tech" }
-    ];
 
     const fetchTemplates = async () => {
         try {
@@ -52,14 +41,14 @@ const TemplatesPage = () => {
     };
 
     const resetForm = () => {
-        setFormData({
-            name: '',
-            subject: '',
-            displayText: '',
-            from: '',
-            replyTo: ''
-        });
-    };
+    setFormData({
+        name: '',
+        subject: '',
+        displayText: '',
+        htmlContent: ''
+    });
+    setHtmlContent("");
+};
 
     const handleStartCreate = () => {
         resetForm();
@@ -72,15 +61,15 @@ const TemplatesPage = () => {
     };
 
     const handleStartEdit = (template) => {
-        setFormData({
-            name: template.name,
-            subject: template.subject,
-            displayText: template.displayText,
-            from: template.from,
-            replyTo: template.replyTo
-        });
-        setEditingId(template._id);
-    };
+    setFormData({
+        name: template.name,
+        subject: template.subject,
+        displayText: template.displayText,
+        htmlContent: template.htmlContent || ""  // Add this
+    });
+    setHtmlContent(template.htmlContent || "");  // Also set the htmlContent state
+    setEditingId(template._id);
+};
 
     const handleChange = (field, value) => {
         setFormData(prev => ({
@@ -139,18 +128,6 @@ const TemplatesPage = () => {
                 fetchTemplates();
             }
         }
-    };
-
-    const handleUseTemplate = (template) => {
-        router.push({
-            pathname: '/',
-            query: { template: JSON.stringify(template) },
-        });
-    };
-
-    const getFromLabel = (value) => {
-        const option = emailOptions.find(opt => opt.value === value);
-        return option ? option.label : value;
     };
 
     return (
@@ -215,56 +192,51 @@ const TemplatesPage = () => {
                             </div>
                             
                             <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Display Text
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.displayText}
-                                    onChange={(e) => handleChange('displayText', e.target.value)}
-                                    className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-600 focus:border-transparent"
-                                    placeholder="Enter display text"
-                                    required
-                                />
-                            </div>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    From Email
-                                </label>
-                                <select
-                                    value={formData.from}
-                                    onChange={(e) => handleChange('from', e.target.value)}
-                                    className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-600 focus:border-transparent"
-                                    required
-                                >
-                                    <option value="">Select from email</option>
-                                    {emailOptions.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Reply To
-                                </label>
-                                <select
-                                    value={formData.replyTo}
-                                    onChange={(e) => handleChange('replyTo', e.target.value)}
-                                    className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-600 focus:border-transparent"
-                                    required
-                                >
-                                    <option value="">Select reply to</option>
-                                    {emailOptions.map((option) => (
-                                        <option key={option.value} value={option.value}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+  <label className="block text-sm font-medium text-gray-300 mb-2">
+    Display Text
+  </label>
+  <input
+    type="text"
+    value={formData.displayText}
+    onChange={(e) => handleChange('displayText', e.target.value)}
+    className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-green-600 focus:border-transparent"
+    placeholder="Enter display text"
+    required
+  />
+
+  {/* Toggle button */}
+  <div className="mt-4">
+    <button
+      onClick={() => setShowHtmlEditor(!showHtmlEditor)}
+      className="text-sm flex items-center gap-2 text-green-400 hover:underline"
+    >
+      {showHtmlEditor ? <><ChevronsUp size={16} /> Hide HTML Editor</> : <><ChevronsDown size={16} /> Show HTML Editor</>}
+    </button>
+  </div>
+
+  {/* Collapsible content */}
+  {showHtmlEditor && (
+    <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="col-span-1">
+  <div className="bg-[#1b1f2a] rounded-xl p-4 shadow-md border border-gray-700">
+    <h2 className="text-lg font-semibold text-white text-center mb-2">Mail Editor</h2>
+    <HTMLEditor 
+      value={formData.htmlContent} 
+      onChange={(value) => {
+        setFormData(prev => ({ ...prev, htmlContent: value }));
+        setHtmlContent(value);
+      }} 
+    />
+  </div>
+</div>
+
+
+      <div className="col-span-1">
+        <PreviewScreen htmlContent={htmlContent} />
+      </div>
+    </div>
+  )}
+</div>
                         </div>
 
                         <div className="flex gap-4 justify-end mt-6">
@@ -305,9 +277,6 @@ const TemplatesPage = () => {
                                     <p className="text-gray-400 text-sm mb-1">
                                         <strong>Subject:</strong> {template.subject || 'No subject'}
                                     </p>
-                                    <p className="text-gray-400 text-sm mb-3">
-                                        <strong>From:</strong> {getFromLabel(template.from) || 'Not specified'}
-                                    </p>
                                     
                                     <div className="border-t border-gray-700 pt-2">
                                         <p className="text-gray-500 text-xs">
@@ -317,14 +286,6 @@ const TemplatesPage = () => {
                                 </div>
                                 
                                 <div className="flex items-center justify-between p-4 pt-0">
-                                    {/* <button
-                                        onClick={() => handleUseTemplate(template)}
-                                        className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition-colors"
-                                    >
-                                        <ExternalLink size={14} />
-                                        Use
-                                    </button> */}
-                                    
                                     <div className="flex gap-2">
                                         <button 
                                             onClick={() => handleStartEdit(template)}

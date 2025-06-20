@@ -35,7 +35,7 @@ export default async function handler(req, res) {
         }
 
       case 'PUT':
-        const { name, subject, displayText, from, replyTo, content } = req.body;
+        const { name, subject, displayText, from, replyTo, htmlContent } = req.body;
         
         // Find the template and create a new version
         const templateToUpdate = await Template.findById(id);
@@ -50,8 +50,8 @@ export default async function handler(req, res) {
           displayText: templateToUpdate.displayText,
           from: templateToUpdate.from,
           replyTo: templateToUpdate.replyTo,
-          content: templateToUpdate.content,
-          updatedAt: templateToUpdate.updatedAt
+          htmlContent: templateToUpdate.htmlContent,
+          createdAt: new Date()
         });
 
         // Update the template with new data
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
         templateToUpdate.displayText = displayText || templateToUpdate.displayText;
         templateToUpdate.from = from || templateToUpdate.from;
         templateToUpdate.replyTo = replyTo || templateToUpdate.replyTo;
-        templateToUpdate.content = content || templateToUpdate.content;
+        templateToUpdate.htmlContent = htmlContent || templateToUpdate.htmlContent;
         templateToUpdate.updatedAt = new Date();
 
         await templateToUpdate.save();
