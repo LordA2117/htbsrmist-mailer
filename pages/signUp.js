@@ -1,139 +1,195 @@
 import {
-    getCsrfToken,
-    getProviders,
-    getSession,
-  } from "next-auth/react";
-  import React, { useState } from "react";
-  import { useSession } from "next-auth/react";
-  import {
-    Container,
-    Box,
-    TextField,
-    Button,
-    Typography,
-    Alert,
-  } from "@mui/material";
-  import Link from "next/link";
-  
-  export default function signUpPage({ csrfToken, providers }) {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState(null);
-    const { data: session } = useSession();
-  
-    const signupUser = async (e) => {
-      e.preventDefault();
-      setMessage(null);
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      let data = await res.json();
-      if (data.message) {
-        setMessage(data.message);
-      }
-  
-      if (data.message === "Registered successfully") {
-        setMessage("User registered successfully. You can now sign in.");
-      }
-    };
-  
-    return (
-    <>            
-        <Link href="/">
-        <button className="flex justify-center items-center mt-4 py-2 w-44 text-2xl rounded-3xl gap-5 tracking-wider bg-[#12273e] hover:bg-[#9FEF00] active:bg-[#5B8E23] focus:outline-none  text-white ">
-            <span>Go Back</span>
-        </button>
-        </Link>
-      <Container
-        maxWidth="sm"
+  getCsrfToken,
+  getProviders,
+  getSession,
+} from "next-auth/react";
+import React, { useState } from "react";
+import { useSession } from "next-auth/react";
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+} from "@mui/material";
+import Link from "next/link";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
+export default function signUpPage({ csrfToken, providers }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState(null);
+  const { data: session } = useSession();
+
+  const signupUser = async (e) => {
+    e.preventDefault();
+    setMessage(null);
+    const res = await fetch("/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    let data = await res.json();
+    if (data.message) {
+      setMessage(data.message);
+    }
+
+    if (data.message === "Registered successfully") {
+      setMessage("User registered successfully. You can now sign in.");
+    }
+  };
+
+  return (
+    <Box
+      className="flex items-center justify-center min-h-screen relative overflow-hidden"
+      sx={{
+        backgroundColor: '#000',
+        color: '#fff',
+      }}
+    >
+      <Box
+        component="form"
+        onSubmit={signupUser}
+        className="relative z-10 w-full max-w-[420px] p-10 flex flex-col gap-6"
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "90vh",
-          backgroundColor: "black",
+          backgroundColor: "#0a0a0a",
+          border: "1px solid #1f1f1f",
+          borderRadius: "12px",
         }}
       >
-        <Box
-          component="form"
-          onSubmit={signupUser}
-          sx={{
-            backgroundColor: "#12273e",
-            border: "2px solid #9FEF00",
-            p: 4,
-            borderRadius: 2,
-            boxShadow: 3,
-            width: "100%",
-          }}
-        >
+        <Box sx={{ mb: 1, textAlign: "center" }}>
           <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-          <Typography variant="h4" component="h1" color="#9FEF00" gutterBottom>
-            Add User
+
+          <div className="flex justify-center mb-6 mt-2">
+            <img src="/logo.png" alt="HTB Logo" className="h-10 object-contain" />
+          </div>
+
+          <Typography variant="h4" component="h1" fontWeight="800" gutterBottom sx={{ color: '#fff', letterSpacing: '-0.5px' }}>
+            Create Account
           </Typography>
+          <Typography variant="body1" sx={{ color: '#888' }}>
+            Register a new user to access the mailer.
+          </Typography>
+        </Box>
+
+        <Box className="flex flex-col gap-5">
           <TextField
-            label="Email address"
+            label="Email Address"
             type="email"
-            variant="outlined"
             fullWidth
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            InputProps={{
-              style: { color: "#9FEF00" },
-            }}
-            InputLabelProps={{
-              style: { color: "#9FEF00" },
+            variant="outlined"
+            InputLabelProps={{ style: { color: '#888' } }}
+            sx={{
+              input: { color: '#fff', padding: '16px' },
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                borderRadius: '12px',
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.1)' },
+                '&:hover fieldset': { borderColor: 'rgba(159, 239, 0, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#9FEF00', borderWidth: '1px' },
+              },
             }}
           />
+
           <TextField
             label="Password"
             type="password"
-            variant="outlined"
             fullWidth
-            margin="normal"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            InputProps={{
-              style: { color: "#9FEF00" },
-            }}
-            InputLabelProps={{
-              style: { color: "#9FEF00" },
+            variant="outlined"
+            InputLabelProps={{ style: { color: '#888' } }}
+            sx={{
+              input: { color: '#fff', padding: '16px' },
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                borderRadius: '12px',
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.1)' },
+                '&:hover fieldset': { borderColor: 'rgba(159, 239, 0, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#9FEF00', borderWidth: '1px' },
+              },
             }}
           />
-          {message && (
-            <Alert severity="success" sx={{ mt: 2 }}>
-              {message}
-            </Alert>
-          )}
-          <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
-          <button
-          type="submit"
-          className="w-full bg-[#9fef00d7] text-2xl rounded-3xl tracking-wider text-black py-2 px-4 hover:bg-[#9FEF00]"
-        >
-          Add
-        </button>
-          </Box>
         </Box>
-      </Container>
-    </>
-    );
-  }
-  
-  export async function getServerSideProps(context) {
-    const { req } = context;
-    const session = await getSession({ req });
-    if (!session) {
-      return {
-        redirect: { destination: "/signIn" },
-      };
-    }
-    const csrfToken = await getCsrfToken(context);
-    const providers = await getProviders();
+
+        {message && (
+          <Alert
+            severity={message.includes("successfully") ? "success" : "error"}
+            sx={{
+              backgroundColor: message.includes("successfully") ? 'rgba(159, 239, 0, 0.1)' : 'rgba(255, 82, 82, 0.1)',
+              color: message.includes("successfully") ? '#9FEF00' : '#ff8a80',
+              border: message.includes("successfully") ? '1px solid rgba(159, 239, 0, 0.3)' : '1px solid rgba(255, 82, 82, 0.3)',
+              borderRadius: '10px'
+            }}
+          >
+            {message}
+          </Alert>
+        )}
+
+        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <Button
+            type="submit"
+            fullWidth
+            sx={{
+              backgroundColor: "#fff",
+              color: "#000",
+              fontWeight: "600",
+              fontSize: "1rem",
+              textTransform: "none",
+              padding: "12px",
+              borderRadius: "8px",
+              "&:hover": {
+                backgroundColor: "#e5e5e5",
+              },
+              transition: "all 0.2s ease-in-out"
+            }}
+          >
+            Sign Up
+          </Button>
+
+          <Link href="/signIn" style={{ textDecoration: 'none' }}>
+            <Button
+              fullWidth
+              startIcon={<ArrowBackIcon />}
+              sx={{
+                backgroundColor: "transparent",
+                color: "#aaa",
+                fontWeight: "500",
+                textTransform: "none",
+                padding: "12px",
+                borderRadius: "8px",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  color: "#fff"
+                },
+                transition: "all 0.2s ease-in-out"
+              }}
+            >
+              Back to Login
+            </Button>
+          </Link>
+        </Box>
+      </Box>
+    </Box>
+  );
+}
+
+export async function getServerSideProps(context) {
+  const { req } = context;
+  const session = await getSession({ req });
+  if (session) {
     return {
-      props: { csrfToken, providers },
+      redirect: { destination: "/" },
     };
   }
-  
+  const csrfToken = await getCsrfToken(context);
+  const providers = await getProviders();
+  return {
+    props: { csrfToken, providers },
+  };
+}

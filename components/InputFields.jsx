@@ -13,31 +13,9 @@ const InputFields = ({
   setFrom,
   setReplyTo,
 }) => {
-  const containerStyles = {
-    padding: "1rem",
-    borderRadius: "24px 24px 16px 16px",
-    background:
-      "linear-gradient(268.56deg, rgba(150, 150, 150, 0.1), rgba(150, 150, 150, 0.1))",
-
-    boxShadow:
-      "1.2396273612976074px 1.2396273612976074px 13.64px rgba(0, 0, 0, 0.25) inset",
-    border: "0.6px solid #545151",
-    transition: "transform 0.3s, background 0.3s",
-    // transform: isHovered ? "scale(1.02)" : "scale(1)",
-  };
   const containerStyles2 = {
-    padding: "1rem",
-    borderRadius: "24px 24px 16px 16px",
-    background:
-      "linear-gradient(268.56deg, rgba(150, 150, 150, 0.1), rgba(150, 150, 150, 0.1))",
-
-    boxShadow:
-      "1.2396273612976074px 1.2396273612976074px 13.64px rgba(0, 0, 0, 0.25) inset",
-    border: "0.6px solid #545151",
-    transition: "transform 0.3s, background 0.3s",
-    width: "300px",
-    // borderColor: "white",
-    // transform: isHovered ? "scale(1.02)" : "scale(1)",
+    width: "100%",
+    maxWidth: "400px",
   };
   const mails = [
     {
@@ -62,92 +40,103 @@ const InputFields = ({
     },
   ];
   return (
-    <div style={containerStyles} className="w-[50%] mx-auto">
-      <h1 className="text-center text-3xl p-4">Mail Config</h1>
-      <div className=" flex justify-evenly">
-        <div>
-          <div>
-            <TextField
-              id="outlined-basic"
-              label="Subject"
-              variant="outlined"
-              color="success"
-              InputLabelProps={{ style: { color: "white" } }}
-              InputProps={{ style: { color: "white" } }}
-              // style={{ borderColor: "neonGreen" }}
-              style={containerStyles2}
-              // focused
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            />
-          </div>
-          <div>
-            <TextField
-              id="outlined-basic"
-              label="Display Text"
-              variant="outlined"
-              color="success"
-              InputLabelProps={{ style: { color: "white" } }}
-              InputProps={{ style: { color: "white" } }}
-              // style={{ width: "100%", borderColor: "white" }}
-              style={containerStyles2}
-              // focused
-              value={displayText}
-              onChange={(e) => setDisplayText(e.target.value)}
-            />
-          </div>
+    <div className="w-full lg:w-[80%] mx-auto glass-panel p-8">
+      <h1 className="text-center text-3xl font-bold tracking-tight mb-8 border-b border-white/5 pb-4">Campaign Configuration</h1>
+      <div className="flex flex-col md:flex-row justify-center gap-8 lg:gap-16">
+        <div className="flex flex-col w-full md:w-1/2 gap-6">
+          <TextField
+            fullWidth
+            label="Subject"
+            variant="outlined"
+            InputLabelProps={{ style: { color: "#888" } }}
+            sx={{
+              input: { color: '#fff' },
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#0a0a0a',
+                borderRadius: '8px',
+                '& fieldset': { borderColor: '#333' },
+                '&:hover fieldset': { borderColor: '#555' },
+                '&.Mui-focused fieldset': { borderColor: '#fff', borderWidth: '1px' },
+              },
+            }}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+          />
+
+          <TextField
+            fullWidth
+            label="Sender Map (Display Text)"
+            variant="outlined"
+            InputLabelProps={{ style: { color: "#888" } }}
+            sx={{
+              input: { color: '#fff' },
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#0a0a0a',
+                borderRadius: '8px',
+                '& fieldset': { borderColor: '#333' },
+                '&:hover fieldset': { borderColor: '#555' },
+                '&.Mui-focused fieldset': { borderColor: '#fff', borderWidth: '1px' },
+              },
+            }}
+            value={displayText}
+            onChange={(e) => setDisplayText(e.target.value)}
+          />
         </div>
-        <div>
-          <div>
-            <TextField
-              select
-              label="From"
-              defaultValue="EUR"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              InputLabelProps={{ style: { color: "white" } }}
-              InputProps={{ style: { color: "white", borderColor: "#ffffff" } }}
-              variant="filled"
-              color="success"
-              // focused
-              // style={{ width: "300px" }}
-              style={containerStyles2}
-            >
-              {mails.map((option) => (
-                <MenuItem
-                  key={option.value}
-                  value={option.value}
-                  style={{ color: "black" }}
-                >
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-          <div>
-            <TextField
-              select
-              label="Reply To"
-              defaultValue="EUR"
-              InputLabelProps={{ style: { color: "white" } }}
-              InputProps={{ style: { color: "white", borderColor: "#ffffff" } }}
-              variant="filled"
-              value={replyTo}
-              color="success"
-              onChange={(e) => setReplyTo(e.target.value)}
-              style={containerStyles2}
-            >
-              {mails.map((option) => (
-                <MenuItem
-                  key={option.value}
-                  value={option.value}
-                  style={{ color: "black" }}
-                >
-                  {option.label}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
+
+        <div className="flex flex-col w-full md:w-1/2 gap-6">
+          <TextField
+            select
+            fullWidth
+            label="From (Verified Identities)"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+            InputLabelProps={{ style: { color: "#888" } }}
+            variant="outlined"
+            sx={{
+              '& .MuiSelect-select': { color: '#fff' },
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#0a0a0a',
+                borderRadius: '8px',
+                '& fieldset': { borderColor: '#333' },
+                '&:hover fieldset': { borderColor: '#555' },
+                '&.Mui-focused fieldset': { borderColor: '#fff', borderWidth: '1px' },
+              },
+              '& .MuiSvgIcon-root': { color: '#888' }
+            }}
+          >
+            {mails.map((option) => (
+              <MenuItem key={option.value} value={option.value} style={{ color: "black" }}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+
+          <TextField
+            select
+            fullWidth
+            label="Reply To"
+            value={replyTo}
+            onChange={(e) => setReplyTo(e.target.value)}
+            InputLabelProps={{ style: { color: "#888" } }}
+            variant="outlined"
+            sx={{
+              '& .MuiSelect-select': { color: '#fff' },
+              '& .MuiOutlinedInput-root': {
+                backgroundColor: '#0a0a0a',
+                borderRadius: '8px',
+                '& fieldset': { borderColor: '#333' },
+                '&:hover fieldset': { borderColor: '#555' },
+                '&.Mui-focused fieldset': { borderColor: '#fff', borderWidth: '1px' },
+              },
+              '& .MuiSvgIcon-root': { color: '#888' }
+            }}
+          >
+            {mails.map((option) => (
+              <MenuItem key={option.value} value={option.value} style={{ color: "black" }}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
         </div>
       </div>
     </div>

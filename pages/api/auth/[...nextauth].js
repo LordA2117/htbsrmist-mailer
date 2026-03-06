@@ -1,9 +1,8 @@
 import NextAuth from "next-auth";
-import connectDB from "./lib/connectDB";
 import CredentialsProvider from "next-auth/providers/credentials";
+import connectDB from "./lib/connectDB";
 import MailerUsers from "../../../utils/models/userModel";
 import bcrypt from "bcryptjs";
-connectDB();
 
 export default NextAuth({
   session: {
@@ -12,43 +11,51 @@ export default NextAuth({
   providers: [
     CredentialsProvider({
       name: "Credentials",
-      async authorize(credentials, req) {
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        await connectDB();
+
         const email = credentials.email;
         const password = credentials.password;
+
+        if (!email || !password) {
+          throw new Error("Please enter both email and password");
+        }
+
         const user = await MailerUsers.findOne({ email });
+
         if (!user) {
-          throw new Error("You haven't registered");
+          throw new Error("No user found with this email");
         }
-        if (user) {
-          return signInUser({ password, user });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+          throw new Error("Incorrect password");
         }
+
+        return { id: user._id.toString(), email: user.email };
       },
     }),
   ],
-  secret: "secret",
-  database: process.env.NEXT_PUBLIC_MONGODB_URI,
+  secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token = { ...token, ...user };
+        token.id = user.id;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
-      session.user = token;
+      if (session?.user) {
+        session.user.id = token.id;
+        session.user.email = token.email;
+      }
       return session;
     },
   },
 });
-
-const signInUser = async ({ password, user }) => {
-  if (!user.password) {
-    throw new Error("Please enter password");
-  }
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error("Password not correct");
-  }
-  console.log(user, "user");
-  return user;
-};

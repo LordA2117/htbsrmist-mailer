@@ -16,7 +16,6 @@ import {
   Alert,
   IconButton,
 } from "@mui/material";
-import Fingerprint from '@mui/icons-material/Fingerprint';
 
 export default function signInPage({ csrfToken, providers }) {
   const [email, setEmail] = useState("");
@@ -50,7 +49,7 @@ export default function signInPage({ csrfToken, providers }) {
   //   if (data.message) {
   //     setMessage(data.message);
   //   }
-  
+
   //   if (data.message === "Registered successfully") {
   //     let options = { redirect: false, email, password };
   //     const res = await signIn("credentials", options);
@@ -59,73 +58,59 @@ export default function signInPage({ csrfToken, providers }) {
   // };
 
   return (
-    <Box 
-      className="themes-wrapper"
-      sx={{ 
-        backgroundColor: '#121212', // Dark background
-        color: '#fff', // Text color for light on dark background
-        width: '100%', 
-        height: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        px: 4 
+    <Box
+      className="themes-wrapper flex items-center justify-center min-h-screen relative overflow-hidden"
+      sx={{
+        backgroundColor: '#000',
+        color: '#fff',
       }}
     >
       <Box
         component="form"
         onSubmit={signInUser}
+        className="relative z-10 w-full max-w-[420px] p-10 flex flex-col gap-6"
         sx={{
-          backgroundColor: "#1e1e1e", // Dark card background
-          border: "2px solid #9FEF00", // Accent color for border
-          p: 4,
-          borderRadius: 2,
-          boxShadow: 3,
-          width: '100%',
-          maxWidth: '400px',
-          color: '#fff'
+          backgroundColor: "#0a0a0a",
+          border: "1px solid #1f1f1f",
+          borderRadius: "12px",
         }}
       >
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 1, textAlign: "center" }}>
           <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-          <Typography variant="h4" component="h3" fontWeight="bold" gutterBottom sx={{ color: '#9FEF00' }}>
-            Log In
+
+          <div className="flex justify-center mb-6 mt-2">
+            <img src="/logo.png" alt="HTB Logo" className="h-10 object-contain" />
+          </div>
+
+          <Typography variant="h4" component="h1" fontWeight="800" gutterBottom sx={{ color: '#fff', letterSpacing: '-0.5px' }}>
+            Welcome Back
           </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ color: '#b0b0b0' }}>
-            Enter your email below to login to your account.
+          <Typography variant="body1" sx={{ color: '#888' }}>
+            Enter your credentials to access the mailer.
           </Typography>
         </Box>
 
-        <Box sx={{ mb: 2 }}>
+        <Box className="flex flex-col gap-5">
           <TextField
             fullWidth
-            label="Email"
+            label="Email Address"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             variant="outlined"
-            color="primary"
-            InputLabelProps={{
-              style: { color: '#fff' }, // Label color
-            }}
+            InputLabelProps={{ style: { color: '#888' } }}
             sx={{
-              input: { color: '#fff' }, // Text color inside input
+              input: { color: '#fff', padding: '16px' },
               '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: '#9FEF00', // Border color for dark theme
-                },
-                '&:hover fieldset': {
-                  borderColor: '#7FCE00', // Hover border color
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#9FEF00', // Focus border color
-                },
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                borderRadius: '12px',
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.1)' },
+                '&:hover fieldset': { borderColor: 'rgba(159, 239, 0, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#9FEF00', borderWidth: '1px' },
               },
             }}
           />
-        </Box>
 
-        <Box sx={{ mb: 2 }}>
           <TextField
             fullWidth
             label="Password"
@@ -133,58 +118,77 @@ export default function signInPage({ csrfToken, providers }) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             variant="outlined"
-            color="secondary"
-            InputLabelProps={{
-              style: { color: '#fff' }, // Label color
-            }}
+            InputLabelProps={{ style: { color: '#888' } }}
             sx={{
-              input: { color: '#fff' }, // Text color inside input
+              input: { color: '#fff', padding: '16px' },
               '& .MuiOutlinedInput-root': {
-                '& fieldset': {
-                  borderColor: '#9FEF00', // Border color for dark theme
-                },
-                '&:hover fieldset': {
-                  borderColor: '#7FCE00', // Hover border color
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#9FEF00', // Focus border color
-                },
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                borderRadius: '12px',
+                '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.1)' },
+                '&:hover fieldset': { borderColor: 'rgba(159, 239, 0, 0.5)' },
+                '&.Mui-focused fieldset': { borderColor: '#9FEF00', borderWidth: '1px' },
               },
             }}
           />
         </Box>
 
         {message && (
-          <Alert severity="error" sx={{ mb: 2, backgroundColor: '#ff5252', color: '#fff' }}>
+          <Alert
+            severity="error"
+            sx={{
+              backgroundColor: 'rgba(255, 82, 82, 0.1)',
+              color: '#ff8a80',
+              border: '1px solid rgba(255, 82, 82, 0.3)',
+              borderRadius: '10px'
+            }}
+          >
             {message}
           </Alert>
         )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <IconButton
-          color="success"
-            onClick={signInUser}
-          >
-            <Fingerprint /> Log In
-          </IconButton>
-        </Box>
-
-        {/* Uncomment below code for sign-up button */}
-        {/* <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Button
-            variant="contained"
+            type="submit"
             fullWidth
             sx={{
-              backgroundColor: "#9fef00d7",
-              color: "black",
+              backgroundColor: "#fff",
+              color: "#000",
+              fontWeight: "600",
+              fontSize: "1rem",
+              textTransform: "none",
+              padding: "12px",
+              borderRadius: "8px",
               "&:hover": {
-                backgroundColor: "#9FEF00",
+                backgroundColor: "#e5e5e5",
               },
+              transition: "all 0.2s ease-in-out"
             }}
           >
-            Sign up
+            Authenticate
           </Button>
-        </Box> */}
+
+          <Button
+            fullWidth
+            onClick={() => Router.push("/signUp")}
+            sx={{
+              backgroundColor: "transparent",
+              color: "#aaa",
+              fontWeight: "500",
+              textTransform: "none",
+              padding: "12px",
+              borderRadius: "8px",
+              border: "1px solid #333",
+              "&:hover": {
+                color: "#fff",
+                backgroundColor: "rgba(255, 255, 255, 0.05)",
+                border: "1px solid #555",
+              },
+              transition: "all 0.2s ease-in-out"
+            }}
+          >
+            Create an Account
+          </Button>
+        </Box>
       </Box>
     </Box>
   );

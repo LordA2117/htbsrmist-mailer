@@ -1,5 +1,5 @@
 // pages/index.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import HTMLEditor from "../components/HtmlEditor";
 import PreviewScreen from "../components/PreviewScreen";
 import JSONEditor from "@/components/JsonEditor";
@@ -13,6 +13,47 @@ import ConsoleLogsBox from "@/components/ConsoleLogBox";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 
+// Formats/beautifies raw HTML string with proper indentation
+const formatHTML = (html) => {
+  if (!html) return "";
+  let formatted = "";
+  let indent = 0;
+  const tab = "  ";
+
+  // Normalize: collapse whitespace between tags
+  const raw = html.replace(/>\s+</g, "><").trim();
+
+  // Split into tokens: tags and text nodes
+  const tokens = raw.match(/(<[^>]+>|[^<]+)/g);
+  if (!tokens) return html;
+
+  tokens.forEach((token) => {
+    // Closing tag
+    if (/^<\//.test(token)) {
+      indent = Math.max(indent - 1, 0);
+      formatted += tab.repeat(indent) + token + "\n";
+    }
+    // Self-closing or void tag (br, hr, img, input, meta, link, etc.)
+    else if (/\/>$/.test(token) || /^<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)(\s|>)/i.test(token)) {
+      formatted += tab.repeat(indent) + token + "\n";
+    }
+    // Opening tag
+    else if (/^<[a-zA-Z]/.test(token)) {
+      formatted += tab.repeat(indent) + token + "\n";
+      indent++;
+    }
+    // Text content
+    else {
+      const text = token.trim();
+      if (text) {
+        formatted += tab.repeat(indent) + text + "\n";
+      }
+    }
+  });
+
+  return formatted.trimEnd();
+};
+
 const Home = () => {
   const [subject, setSubject] = useState("");
   const [displayText, setDisplayText] = useState("");
@@ -24,17 +65,33 @@ const Home = () => {
   const [sentEmails, setSentEmails] = useState([]);
   const [errorLogs, setErrorLogs] = useState([]);
   const [templates, setTemplates] = useState([]);
+  const [selectedTemplateName, setSelectedTemplateName] = useState("");
+
+  const { data: session } = useSession();
   const router = useRouter();
+
+  // Reset all states when switching template or when reset button clicked
+  const resetAllStates = () => {
+    setSubject("");
+    setDisplayText("");
+    setFrom("");
+    setReplyTo("");
+    setHtmlContent("");
+    setJsonContent("");
+    setSentEmails([]);
+    setErrorLogs([]);
+    setSelectedTemplateName("");
+  };
 
   // Fetch templates when component mounts
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch('/api/templates');
+        const response = await fetch("/api/templates");
         const data = await response.json();
         setTemplates(data);
       } catch (error) {
-        console.error('Error fetching templates:', error);
+        console.error("Error fetching templates:", error);
       }
     };
     fetchTemplates();
@@ -42,7 +99,7 @@ const Home = () => {
 
   // Check for selected template on component mount
   useEffect(() => {
-    const selectedTemplate = localStorage.getItem('selectedTemplate');
+    const selectedTemplate = localStorage.getItem("selectedTemplate");
     if (selectedTemplate) {
       try {
         const template = JSON.parse(selectedTemplate);
@@ -50,16 +107,14 @@ const Home = () => {
         setDisplayText(template.displayText || "");
         setFrom(template.from || "");
         setReplyTo(template.replyTo || "");
-        setHtmlContent(template.htmlContent || "");
-        // Clear the template from localStorage after loading
-        localStorage.removeItem('selectedTemplate');
+        setHtmlContent(formatHTML(template.htmlContent || ""));
+        setSelectedTemplateName(template.name || "");
+        localStorage.removeItem("selectedTemplate");
       } catch (error) {
-        console.error('Error loading selected template:', error);
+        console.error("Error loading selected template:", error);
       }
     }
   }, []);
-
-  const { data: session } = useSession();
 
   const handleHTMLChange = (value) => {
     setHtmlContent(value);
@@ -71,7 +126,7 @@ const Home = () => {
       setJsonContent(parsedJSON);
     } catch (error) {
       console.error("Error parsing JSON:", error);
-      setErrorLogs(prev => [...prev, `Error parsing JSON: ${error.message}`]);
+      setErrorLogs((prev) => [...prev, `Error parsing JSON: ${error.message}`]);
     }
   };
 
@@ -91,160 +146,245 @@ const Home = () => {
         (error) => setErrorLogs((prevErrors) => [...prevErrors, error])
       );
     } catch (error) {
-      setErrorLogs(prev => [...prev, `Error sending emails: ${error.message}`]);
+      setErrorLogs((prev) => [
+        ...prev,
+        `Error sending emails: ${error.message}`,
+      ]);
     } finally {
       setSendEmailLoading(false);
     }
   };
 
+  // Auto-scroll to bottom when results come in
   useEffect(() => {
-    // Scroll to the bottom of the console logs box when updated
     if (sentEmails.length > 0 || errorLogs.length > 0) {
       window.scrollTo(0, document.body.scrollHeight);
     }
   }, [sentEmails, errorLogs]);
 
+  // Redirect if no session
   useEffect(() => {
     if (!session) {
       router.push("/signIn");
     }
   }, [session, router]);
 
-  const containerStyles = {
-    padding: "1rem",
-    borderRadius: "24px 24px 16px 16px",
-    background: "linear-gradient(268.56deg, rgba(150, 150, 150, 0.1), rgba(150, 150, 150, 0.1))",
-    boxShadow: "1.2396273612976074px 1.2396273612976074px 13.64px rgba(0, 0, 0, 0.25) inset",
-    border: "0.6px solid #545151",
-    transition: "transform 0.3s, background 0.3s",
-  };
-
   if (!session) {
-    return null; // Return null while redirecting to avoid rendering the component
+    return null; // prevent flicker before redirect
   }
 
   return (
-    <div className="min-h-screen text-white">
-      <header>
-  <div className="flex justify-between items-center p-4 text-white">
-    <h1 className="text-2xl">Email Sender</h1>
-    <div className="flex gap-3 justify-items-center align-middle items-center text-white">
-      <Button
-        size="large"
-        variant="outlined"
-        color="success"
-        onClick={(e) => {
-          e.preventDefault();
-          router.push("/templates");
-        }}
-      >
-        Templates
-      </Button>
-      <Button
-        size="large"
-        variant="outlined"
-        color="success"
-        onClick={(e) => {
-          e.preventDefault();
-          router.push("/signUp");
-        }}
-      >
-        Add User
-      </Button>
-      <Button
-        size="large"
-        variant="outlined"
-        color="error"
-        onClick={(e) => {
-          e.preventDefault();
-          signOut();
-        }}
-      >
-        Sign Out
-      </Button>
-    </div>
-  </div>
-</header>
-
-      <InputFields
-        subject={subject}
-        displayText={displayText}
-        from={from}
-        replyTo={replyTo}
-        setSubject={setSubject}
-        setDisplayText={setDisplayText}
-        setFrom={setFrom}
-        setReplyTo={setReplyTo}
-      />
-      <div className="flex max-xl:flex-col justify-between p-10 gap-2">
-        <div className="w-[50%] max-xl:w-[100%]" style={containerStyles}>
-          <div className="flex justify-between items-center mb-2">
-            <h1 className="text-3xl">Mail Editor</h1>
-            <select
-    className="bg-gray-800 text-white px-4 py-2 rounded"
-    onChange={(e) => {
-        const selected = templates.find(tpl => tpl.name === e.target.value);
-        if (selected) {
-            setSubject(selected.subject || "");
-            setDisplayText(selected.displayText || "");
-            setFrom(selected.from || "");
-            setReplyTo(selected.replyTo || "");
-            setHtmlContent(selected.htmlContent || "");
-            // Store the full template in localStorage
-            localStorage.setItem('selectedTemplate', JSON.stringify(selected));
-        }
-    }}
-    value=""
->
-    <option value="">Templates</option>
-    {templates.map((tpl, idx) => (
-        <option key={idx} value={tpl.name}>
-            {tpl.name}
-        </option>
-    ))}
-</select>
+    <div className="min-h-screen text-white bg-black overflow-x-hidden font-sans">
+      <header className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="HTB Logo" className="h-8 object-contain" />
+            <h1 className="text-xl font-semibold tracking-tight text-white/90">
+              Mailer Engine
+            </h1>
           </div>
-          <HTMLEditor value={htmlContent} onChange={handleHTMLChange} />
+
+          <div className="flex gap-4 items-center">
+            <Button
+              size="small"
+              onClick={() => router.push("/templates")}
+              sx={{
+                color: '#aaa',
+                textTransform: 'none',
+                fontWeight: 500,
+                '&:hover': { color: '#fff', backgroundColor: 'transparent' }
+              }}
+            >
+              Templates
+            </Button>
+            {/* <Button
+              size="small"
+              onClick={() => router.push("/signUp")}
+              sx={{
+                color: '#aaa',
+                textTransform: 'none',
+                fontWeight: 500,
+                '&:hover': { color: '#fff', backgroundColor: 'transparent' }
+              }}
+            >
+              Add User
+            </Button> */}
+            <Button
+              size="small"
+              onClick={() => signOut()}
+              sx={{
+                color: '#fff',
+                backgroundColor: '#222',
+                border: '1px solid #333',
+                textTransform: 'none',
+                borderRadius: '6px',
+                padding: '4px 16px',
+                fontWeight: 500,
+                '&:hover': { backgroundColor: '#333', borderColor: '#444' }
+              }}
+            >
+              Sign Out
+            </Button>
+          </div>
         </div>
-        <div className="w-[50%] max-xl:w-[100%] h-full">
-          <PreviewScreen htmlContent={htmlContent} />
+      </header>
+
+      <main className="relative z-10 max-w-7xl mx-auto py-8 lg:px-8 flex flex-col gap-8">
+        <InputFields
+          subject={subject}
+          displayText={displayText}
+          from={from}
+          replyTo={replyTo}
+          setSubject={setSubject}
+          setDisplayText={setDisplayText}
+          setFrom={setFrom}
+          setReplyTo={setReplyTo}
+        />
+
+        {/* Mail Editor & Preview */}
+        <div className="flex max-xl:flex-col justify-between gap-6 px-4 lg:px-0">
+          <div className="w-[50%] max-xl:w-[100%] glass-panel glass-panel-hover p-6">
+            <div className="flex justify-between items-center mb-6 border-b border-white/10 pb-4">
+              <h2 className="text-xl font-semibold tracking-tight text-white/90">Mail HTML Editor</h2>
+              <div className="relative">
+                <select
+                  className="appearance-none bg-[#0a0a0a] border border-[#333] hover:border-[#555] rounded-[6px] pl-3 pr-8 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-white/40 focus:ring-1 focus:ring-white/20 transition-all cursor-pointer outline-none"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23888'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 0.5rem center',
+                    backgroundSize: '1.2em 1.2em',
+                  }}
+                  value={selectedTemplateName}
+                  onChange={(e) => {
+                    const selected = templates.find((tpl) => tpl.name === e.target.value);
+                    if (selected) {
+                      resetAllStates();
+                      setSubject(selected.subject || "");
+                      setDisplayText(selected.displayText || "");
+                      setFrom(selected.from || "");
+                      setReplyTo(selected.replyTo || "");
+                      setHtmlContent(formatHTML(selected.htmlContent || ""));
+                      setSelectedTemplateName(selected.name);
+                      localStorage.setItem("selectedTemplate", JSON.stringify(selected));
+                    } else {
+                      setHtmlContent("");
+                      setSelectedTemplateName("");
+                    }
+                  }}
+                >
+                  <option value="" disabled>
+                    Select Template
+                  </option>
+                  {templates.map((tpl, idx) => (
+                    <option
+                      key={idx}
+                      value={tpl.name}
+                      style={{
+                        background: "rgba(40, 40, 40, 0.95)",
+                        color: "white",
+                        padding: "8px",
+                      }}
+                    >
+                      {tpl.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="rounded-[8px] overflow-hidden border border-[#222]">
+              <HTMLEditor value={htmlContent} onChange={handleHTMLChange} />
+            </div>
+          </div>
+
+          <div className="w-[50%] max-xl:w-[100%] glass-panel p-6 flex flex-col">
+            <h2 className="text-xl font-semibold tracking-tight text-white/90 mb-6 border-b border-white/5 pb-4">Live Preview</h2>
+            <div className="flex-1 min-h-[400px] bg-white rounded-[8px] overflow-hidden border border-[#222]">
+              <PreviewScreen htmlContent={htmlContent} />
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="flex mt-10 max-xl:flex-col justify-between p-10 gap-2">
-        <div className="w-[50%] max-xl:w-[100%]">
-          <JSONEditor value={jsonContent} onParse={handleParseJSON} />
+
+        {/* JSON Editor & Preview */}
+        <div className="flex mt-2 max-xl:flex-col justify-between gap-6 px-4 lg:px-0">
+          <div className="w-[50%] max-xl:w-[100%] glass-panel glass-panel-hover p-6">
+            <h2 className="text-xl font-semibold tracking-tight text-white/90 mb-6 border-b border-white/5 pb-4">Variables JSON Input</h2>
+            <div className="rounded-[8px] overflow-hidden border border-[#222] min-h-[300px]">
+              <JSONEditor value={jsonContent} onParse={handleParseJSON} />
+            </div>
+          </div>
+          <div className="w-[50%] max-xl:w-[100%] glass-panel glass-panel-hover p-6">
+            <h2 className="text-xl font-semibold tracking-tight text-white/90 mb-6 border-b border-white/5 pb-4">Parsed JSON Data</h2>
+            <div className="rounded-[8px] overflow-hidden border border-[#222] h-full">
+              <JSONPreview jsonContent={jsonContent} onChange={setJsonContent} />
+            </div>
+          </div>
         </div>
-        <div className="w-[50%] max-xl:w-[100%]">
-          <JSONPreview jsonContent={jsonContent} onChange={setJsonContent} />
+
+        {/* Send & Reset Buttons */}
+        <div className="flex justify-center gap-4 py-8 px-4">
+          <Button
+            onClick={resetAllStates}
+            variant="outlined"
+            size="large"
+            sx={{
+              borderColor: "#333",
+              color: "#aaa",
+              fontWeight: "500",
+              textTransform: "none",
+              borderRadius: "8px",
+              padding: "10px 24px",
+              "&:hover": {
+                borderColor: "#666",
+                backgroundColor: "rgba(255,255,255,0.02)",
+              }
+            }}
+          >
+            Reset
+          </Button>
+
+          <Button
+            onClick={sendEmails}
+            variant="contained"
+            size="large"
+            disabled={sendEmailLoading || !from || !subject || !htmlContent}
+            sx={{
+              backgroundColor: "#fff",
+              color: "#000",
+              fontWeight: "600",
+              textTransform: "none",
+              padding: "10px 32px",
+              borderRadius: "8px",
+              "&:hover": {
+                backgroundColor: "#e5e5e5",
+              },
+              "&:disabled": {
+                backgroundColor: "rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.3)",
+              }
+            }}
+          >
+            {sendEmailLoading ? "Deploying..." : "Deploy Campaign"}
+          </Button>
         </div>
-      </div>
-      <div className="flex justify-center p-4">
-        <Button
-          onClick={sendEmails}
-          color="success"
-          variant="contained"
-          style={{ backgroundColor: "#4CAF50", padding: "12px 24px" }}
-          disabled={sendEmailLoading || !from || !subject || !htmlContent}
-        >
-          {sendEmailLoading ? "Sending..." : "Send Emails"}
-        </Button>
-      </div>
-      <div className="flex mt-10 max-xl:flex-col justify-between p-10 gap-2">
-        <div className="w-[50%] max-xl:w-[100%]">
-          <div className="rounded-lg">
+
+        {/* Emails + Console Logs */}
+        <div className="flex mt-2 mb-12 max-xl:flex-col justify-between gap-6 px-4 lg:px-0">
+          <div className="w-[50%] max-xl:w-[100%] glass-panel p-0 overflow-hidden">
             <EmailTable emails={sentEmails} />
           </div>
+          <div className="w-[50%] max-xl:w-[100%] glass-panel p-0 overflow-hidden">
+            <ConsoleLogsBox
+              consoleLogs={[
+                ...sentEmails.map((email) => `[SUCCESS] Payload delivered to ${email}`),
+                ...errorLogs.map((error) => `[ERROR] ${error}`),
+              ]}
+            />
+          </div>
         </div>
-        <div className="w-[50%] max-xl:w-[100%]">
-          <ConsoleLogsBox
-            consoleLogs={[
-              ...sentEmails.map((email) => `Email sent to ${email}`),
-              ...errorLogs.map((error) => `Error: ${error}`),
-            ]}
-          />
-        </div>
-      </div>
-    </div>
+
+      </main >
+    </div >
   );
 };
 
