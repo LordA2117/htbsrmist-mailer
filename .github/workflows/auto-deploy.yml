@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.DEPLOY_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.ref }}
 
       - name: Setup Git
