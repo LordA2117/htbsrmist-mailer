@@ -1,13 +1,5 @@
-// emailService.js
-import AWS from "aws-sdk";
+// Mailer.js - Updated to call server-side API route
 
-AWS.config.update({
-  accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-  region: process.env.NEXT_PUBLIC_AWS_REGION,
-});
-
-const sesv2 = new AWS.SES({ apiVersion: "2019-09-27" });
 
 const sendEmail = async (
   from,
@@ -30,25 +22,30 @@ const sendEmail = async (
   for (const email of emails) {
     console.log("Debug: Email to be sent:", email);
 
-    // Send email using SES
+    // Send email using the server-side API
     try {
-      const result = await sesv2
-        .sendEmail({
-          Source: from,
-          Destination: { ToAddresses: [email] },
-          Message: {
-            Body: {
-              Html: { Charset: "UTF-8", Data: htmlContent },
-              Text: { Charset: "UTF-8", Data: displayText },
-            },
-            Subject: { Charset: "UTF-8", Data: subject },
-          },
-        })
-        .promise();
+      const response = await fetch("/api/sendEmail", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: email,
+          subject,
+          htmlContent,
+          displayText,
+        }),
+      });
 
-      console.log("Email sent to", email);
-      console.log("SES Response:", result);
-      onEmailSent(email);
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Email sent to", email);
+        onEmailSent(email);
+      } else {
+        throw new Error(data.message || "Failed to send email");
+      }
     } catch (error) {
       console.error("Error sending email to", email, ":", error);
     }
