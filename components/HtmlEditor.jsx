@@ -1,18 +1,31 @@
-import dynamic from 'next/dynamic';
+import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 // Dynamically import AceEditor with SSR disabled
-const AceEditor = dynamic(
-  async () => {
-    const ace = await import("react-ace");
-    await import("ace-builds/src-noconflict/mode-html");
-    await import("ace-builds/src-noconflict/theme-terminal");
-    await import("ace-builds/src-noconflict/ext-language_tools");
-    return ace.default;
-  },
-  { ssr: false }
-);
+const AceEditor = dynamic(() => import("react-ace"), { ssr: false });
 
 const HTMLEditor = ({ value, onChange }) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // Only load these on the client
+    const loadAce = async () => {
+      await import("ace-builds/src-noconflict/mode-html");
+      await import("ace-builds/src-noconflict/theme-terminal");
+      await import("ace-builds/src-noconflict/ext-language_tools");
+      setMounted(true);
+    };
+    loadAce();
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div style={{ height: "100vh", width: "100%", backgroundColor: "#0a0a0a" }}>
+        Loading Editor...
+      </div>
+    );
+  }
+
   return (
     <div>
       <AceEditor
@@ -26,7 +39,7 @@ const HTMLEditor = ({ value, onChange }) => {
           width: "100%",
         }}
         onLoad={(editor) => {
-          // You can do something when the editor loads if needed
+          editor.renderer.updateFull();
         }}
         onChange={(newValue) => onChange(newValue)}
         fontSize={14}
@@ -35,6 +48,7 @@ const HTMLEditor = ({ value, onChange }) => {
         highlightActiveLine={true}
         value={value}
         setOptions={{
+          useWorker: false, // CRITICAL: Fix for production uneditable/black issue
           enableBasicAutocompletion: true,
           enableLiveAutocompletion: true,
           enableSnippets: true,
@@ -47,3 +61,4 @@ const HTMLEditor = ({ value, onChange }) => {
 };
 
 export default HTMLEditor;
+
