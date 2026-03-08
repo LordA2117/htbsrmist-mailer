@@ -12,15 +12,32 @@ import {
   Button,
   Typography,
   Alert,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { useRouter } from "next/router";
+import { useEffect } from "react";
+
 import Link from "next/link";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function signUpPage({ csrfToken, providers }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState(null);
   const { data: session } = useSession();
+  const router = useRouter();
+
+  const ADMIN_EMAILS = ["mailer@htbchennai.in", "test@gmail.com"];
+
+  useEffect(() => {
+    if (session && !ADMIN_EMAILS.includes(session.user.email)) {
+      router.push("/");
+    }
+  }, [session, router]);
 
   const signupUser = async (e) => {
     e.preventDefault();
@@ -98,12 +115,26 @@ export default function signUpPage({ csrfToken, providers }) {
 
           <TextField
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             fullWidth
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             variant="outlined"
             InputLabelProps={{ style: { color: '#888' } }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                    sx={{ color: '#888' }}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
             sx={{
               input: { color: '#fff', padding: '16px' },
               '& .MuiOutlinedInput-root': {
@@ -182,11 +213,15 @@ export default function signUpPage({ csrfToken, providers }) {
 export async function getServerSideProps(context) {
   const { req } = context;
   const session = await getSession({ req });
-  if (session) {
+
+  const ADMIN_EMAILS = ["mailer@htbchennai.in", "test@gmail.com"];
+
+  if (!session || !ADMIN_EMAILS.includes(session.user.email)) {
     return {
-      redirect: { destination: "/" },
+      redirect: { destination: "/signIn" },
     };
   }
+
   const csrfToken = await getCsrfToken(context);
   const providers = await getProviders();
   return {

@@ -1,7 +1,8 @@
 // pages/templates.js
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { ArrowLeft, Plus, Save, X, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Save, X, Edit, Trash2, LogOut } from 'lucide-react';
+import { useSession, signOut } from "next-auth/react";
 import HTMLEditor from "@/components/HtmlEditor";
 import PreviewScreen from "@/components/PreviewScreen";
 import { ChevronsDown, ChevronsUp } from 'lucide-react';
@@ -48,7 +49,10 @@ const formatHTML = (html) => {
 };
 
 const TemplatesPage = () => {
+    const { data: session } = useSession();
     const router = useRouter();
+    const ADMIN_EMAILS = ["mailer@htbchennai.in", "test@gmail.com"];
+
     const [templates, setTemplates] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [showHtmlEditor, setShowHtmlEditor] = useState(false);
@@ -79,6 +83,16 @@ const TemplatesPage = () => {
 
     // Navigation
     const handleBack = () => router.push('/');
+
+    // Redirect if no session
+    useEffect(() => {
+        if (typeof window !== "undefined" && !session && router.isReady) {
+            router.push("/signIn");
+        }
+    }, [session, router]);
+
+    if (!session) return null;
+
 
     // Reset form data
     const resetForm = () => {
@@ -155,11 +169,11 @@ const TemplatesPage = () => {
             <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 font-sans max-w-7xl mx-auto">
 
                 {/* Header - Mobile responsive */}
-                <div className="flex items-center justify-between mb-8 pb-4 border-b border-[#9FEF00]/20">
+                <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={handleBack}
-                            className="p-2 text-[#9FEF00] hover:bg-[#9FEF00]/10 border border-transparent hover:border-[#9FEF00]/30 rounded-xl transition-all touch-manipulation"
+                            className="p-2 text-white/70 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 rounded-xl transition-all touch-manipulation"
                             aria-label="Go back"
                         >
                             <ArrowLeft size={24} />
@@ -167,16 +181,38 @@ const TemplatesPage = () => {
                         <img src="/logo.png" alt="HTB Logo" className="h-8 object-contain hidden sm:block" />
                         <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-white/90">Email Templates</h1>
                     </div>
-                    {editingId !== 'new' && (
+
+                    <div className="flex items-center gap-3">
+                        {editingId !== 'new' && (
+                            <button
+                                onClick={handleStartCreate}
+                                className="flex items-center gap-2 bg-white hover:bg-[#e5e5e5] text-black px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base mr-2"
+                            >
+                                <Plus size={18} className="flex-shrink-0" />
+                                <span className="hidden xs:inline">New Template</span>
+                                <span className="xs:hidden">New</span>
+                            </button>
+                        )}
+
+                        {session && ADMIN_EMAILS.includes(session.user.email) && (
+                            <button
+                                onClick={() => router.push("/signUp")}
+                                className="hidden sm:flex items-center gap-2 text-[#aaa] hover:text-white px-3 py-2 rounded-lg font-medium transition-colors text-sm"
+                            >
+                                Add User
+                            </button>
+                        )}
+
+                        <div className="hidden sm:block w-[1px] h-4 bg-white/10 mx-1" />
+
                         <button
-                            onClick={handleStartCreate}
-                            className="flex items-center gap-2 bg-white hover:bg-[#e5e5e5] text-black px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
+                            onClick={() => signOut()}
+                            className="flex items-center gap-2 bg-[#222] border border-[#333] hover:bg-[#333] hover:border-[#444] text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
                         >
-                            <Plus size={18} className="flex-shrink-0" />
-                            <span className="hidden xs:inline">New Template</span>
-                            <span className="xs:hidden">New</span>
+                            <LogOut size={16} className="hidden xs:block" />
+                            <span>Sign Out</span>
                         </button>
-                    )}
+                    </div>
                 </div>
 
                 {/* Create/Edit Template - Mobile optimized */}

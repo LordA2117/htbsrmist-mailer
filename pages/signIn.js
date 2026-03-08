@@ -15,11 +15,15 @@ import {
   Typography,
   Alert,
   IconButton,
+  InputAdornment,
 } from "@mui/material";
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 export default function signInPage({ csrfToken, providers }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState(null);
   const { data: session } = useSession();
 
@@ -114,11 +118,25 @@ export default function signInPage({ csrfToken, providers }) {
           <TextField
             fullWidth
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             variant="outlined"
             InputLabelProps={{ style: { color: '#888' } }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                    sx={{ color: '#888' }}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
             sx={{
               input: { color: '#fff', padding: '16px' },
               '& .MuiOutlinedInput-root': {
@@ -130,6 +148,20 @@ export default function signInPage({ csrfToken, providers }) {
               },
             }}
           />
+          <Box className="flex justify-end">
+            <Button
+              size="small"
+              sx={{
+                color: '#888',
+                textTransform: 'none',
+                fontSize: '0.85rem',
+                '&:hover': { color: '#9FEF00', backgroundColor: 'transparent' }
+              }}
+              onClick={() => setMessage("Please contact the administrator to reset your password.")}
+            >
+              Forgot Password?
+            </Button>
+          </Box>
         </Box>
 
         {message && (
@@ -167,27 +199,6 @@ export default function signInPage({ csrfToken, providers }) {
             Authenticate
           </Button>
 
-          <Button
-            fullWidth
-            onClick={() => Router.push("/signUp")}
-            sx={{
-              backgroundColor: "transparent",
-              color: "#aaa",
-              fontWeight: "500",
-              textTransform: "none",
-              padding: "12px",
-              borderRadius: "8px",
-              border: "1px solid #333",
-              "&:hover": {
-                color: "#fff",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid #555",
-              },
-              transition: "all 0.2s ease-in-out"
-            }}
-          >
-            Create an Account
-          </Button>
         </Box>
       </Box>
     </Box>

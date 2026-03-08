@@ -4,7 +4,7 @@ import connectDB from "./lib/connectDB";
 import MailerUsers from "../../../utils/models/userModel";
 import bcrypt from "bcryptjs";
 
-export default NextAuth({
+export const authOptions = {
   session: {
     strategy: "jwt",
   },
@@ -58,4 +58,6 @@ export default NextAuth({
       return session;
     },
   },
-});
+};
+
+export default NextAuth(authOptions);

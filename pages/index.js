@@ -184,7 +184,7 @@ const Home = () => {
             </h1>
           </div>
 
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-2 items-center">
             <Button
               size="small"
               onClick={() => router.push("/templates")}
@@ -192,23 +192,30 @@ const Home = () => {
                 color: '#aaa',
                 textTransform: 'none',
                 fontWeight: 500,
-                '&:hover': { color: '#fff', backgroundColor: 'transparent' }
+                padding: '4px 12px',
+                borderRadius: '6px',
+                '&:hover': { color: '#fff', backgroundColor: 'rgba(255,255,255,0.05)' }
               }}
             >
               Templates
             </Button>
-            {/* <Button
-              size="small"
-              onClick={() => router.push("/signUp")}
-              sx={{
-                color: '#aaa',
-                textTransform: 'none',
-                fontWeight: 500,
-                '&:hover': { color: '#fff', backgroundColor: 'transparent' }
-              }}
-            >
-              Add User
-            </Button> */}
+            {session && ["mailer@htbchennai.in", "test@gmail.com"].includes(session.user.email) && (
+              <Button
+                size="small"
+                onClick={() => router.push("/signUp")}
+                sx={{
+                  color: '#aaa',
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  padding: '4px 12px',
+                  borderRadius: '6px',
+                  '&:hover': { color: '#fff', backgroundColor: 'rgba(255,255,255,0.05)' }
+                }}
+              >
+                Add User
+              </Button>
+            )}
+            <div className="w-[1px] h-4 bg-white/10 mx-1" />
             <Button
               size="small"
               onClick={() => signOut()}
