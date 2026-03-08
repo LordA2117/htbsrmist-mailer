@@ -1,10 +1,18 @@
-// components/HtmlEditor.js  ← keep this clean, no dynamic() here
+// components/HtmlEditor.js
 import AceEditor from "react-ace";
 import "ace-builds/src-noconflict/mode-html";
 import "ace-builds/src-noconflict/theme-terminal";
 import "ace-builds/src-noconflict/ext-language_tools";
+import { useEffect, useState } from "react";
 
 const HTMLEditor = ({ value, onChange }) => {
+  const [editorValue, setEditorValue] = useState("");
+
+  // Sync external value into local state AFTER mount
+  useEffect(() => {
+    setEditorValue(value);
+  }, [value]);
+
   return (
     <AceEditor
       placeholder="Start typing here ...."
@@ -12,12 +20,15 @@ const HTMLEditor = ({ value, onChange }) => {
       theme="terminal"
       name="html-editor"
       style={{ color: "white", height: "100vh", width: "100%" }}
-      onChange={(newValue) => onChange(newValue)}
+      onChange={(newValue) => {
+        setEditorValue(newValue);
+        onChange(newValue);
+      }}
       fontSize={14}
       showPrintMargin={true}
       showGutter={true}
       highlightActiveLine={true}
-      value={value}
+      value={editorValue}   // ← controlled by local state
       setOptions={{
         useWorker: false,
         enableBasicAutocompletion: true,
