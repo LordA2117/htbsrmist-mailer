@@ -1,6 +1,6 @@
 // pages/index.js
-import React, { useState, useEffect, useRef } from "react";
-import HTMLEditor from "../components/HtmlEditor";
+import React, { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import PreviewScreen from "../components/PreviewScreen";
 import JSONEditor from "@/components/JsonEditor";
 import JSONPreview from "@/components/JsonPreview";
@@ -9,9 +9,18 @@ import sendEmail from "@/utils/Mailer";
 import Button from "@mui/material/Button";
 import EmailTable from "@/components/EmailTable";
 import ConsoleLogsBox from "@/components/ConsoleLogBox";
-
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+
+// ✅ Correct fix: dynamic import the WHOLE HTMLEditor module with ssr:false
+const HTMLEditor = dynamic(() => import("../components/HtmlEditor"), {
+  ssr: false,
+  loading: () => (
+    <div style={{ height: "100vh", width: "100%", backgroundColor: "#0a0a0a", display: "flex", alignItems: "center", justifyContent: "center", color: "#555", fontSize: "14px" }}>
+      Loading Editor...
+    </div>
+  ),
+});
 
 // Formats/beautifies raw HTML string with proper indentation
 const formatHTML = (html) => {
@@ -20,34 +29,22 @@ const formatHTML = (html) => {
   let indent = 0;
   const tab = "  ";
 
-  // Normalize: collapse whitespace between tags
   const raw = html.replace(/>\s+</g, "><").trim();
-
-  // Split into tokens: tags and text nodes
   const tokens = raw.match(/(<[^>]+>|[^<]+)/g);
   if (!tokens) return html;
 
   tokens.forEach((token) => {
-    // Closing tag
     if (/^<\//.test(token)) {
       indent = Math.max(indent - 1, 0);
       formatted += tab.repeat(indent) + token + "\n";
-    }
-    // Self-closing or void tag (br, hr, img, input, meta, link, etc.)
-    else if (/\/>$/.test(token) || /^<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)(\s|>)/i.test(token)) {
+    } else if (/\/>$/.test(token) || /^<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)(\s|>)/i.test(token)) {
       formatted += tab.repeat(indent) + token + "\n";
-    }
-    // Opening tag
-    else if (/^<[a-zA-Z]/.test(token)) {
+    } else if (/^<[a-zA-Z]/.test(token)) {
       formatted += tab.repeat(indent) + token + "\n";
       indent++;
-    }
-    // Text content
-    else {
+    } else {
       const text = token.trim();
-      if (text) {
-        formatted += tab.repeat(indent) + text + "\n";
-      }
+      if (text) formatted += tab.repeat(indent) + text + "\n";
     }
   });
 
@@ -70,7 +67,6 @@ const Home = () => {
   const { data: session } = useSession();
   const router = useRouter();
 
-  // Reset all states when switching template or when reset button clicked
   const resetAllStates = () => {
     setSubject("");
     setDisplayText("");
@@ -83,7 +79,6 @@ const Home = () => {
     setSelectedTemplateName("");
   };
 
-  // Fetch templates when component mounts
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
@@ -97,7 +92,6 @@ const Home = () => {
     fetchTemplates();
   }, []);
 
-  // Check for selected template on component mount
   useEffect(() => {
     const selectedTemplate = localStorage.getItem("selectedTemplate");
     if (selectedTemplate) {
@@ -116,9 +110,7 @@ const Home = () => {
     }
   }, []);
 
-  const handleHTMLChange = (value) => {
-    setHtmlContent(value);
-  };
+  const handleHTMLChange = (value) => setHtmlContent(value);
 
   const handleParseJSON = (jsonText) => {
     try {
@@ -135,43 +127,33 @@ const Home = () => {
       setSendEmailLoading(true);
       setSentEmails([]);
       setErrorLogs([]);
-
       await sendEmail(
         from,
         subject,
         htmlContent,
         displayText,
         jsonContent,
-        (email) => setSentEmails((prevEmails) => [...prevEmails, email]),
-        (error) => setErrorLogs((prevErrors) => [...prevErrors, error])
+        (email) => setSentEmails((prev) => [...prev, email]),
+        (error) => setErrorLogs((prev) => [...prev, error])
       );
     } catch (error) {
-      setErrorLogs((prev) => [
-        ...prev,
-        `Error sending emails: ${error.message}`,
-      ]);
+      setErrorLogs((prev) => [...prev, `Error sending emails: ${error.message}`]);
     } finally {
       setSendEmailLoading(false);
     }
   };
 
-  // Auto-scroll to bottom when results come in
   useEffect(() => {
     if (sentEmails.length > 0 || errorLogs.length > 0) {
       window.scrollTo(0, document.body.scrollHeight);
     }
   }, [sentEmails, errorLogs]);
 
-  // Redirect if no session
   useEffect(() => {
-    if (!session) {
-      router.push("/signIn");
-    }
+    if (!session) router.push("/signIn");
   }, [session, router]);
 
-  if (!session) {
-    return null; // prevent flicker before redirect
-  }
+  if (!session) return null;
 
   return (
     <div className="min-h-screen text-white bg-black overflow-x-hidden font-sans">
@@ -280,18 +262,12 @@ const Home = () => {
                     }
                   }}
                 >
-                  <option value="" disabled>
-                    Select Template
-                  </option>
+                  <option value="" disabled>Select Template</option>
                   {templates.map((tpl, idx) => (
                     <option
                       key={idx}
                       value={tpl.name}
-                      style={{
-                        background: "rgba(40, 40, 40, 0.95)",
-                        color: "white",
-                        padding: "8px",
-                      }}
+                      style={{ background: "rgba(40, 40, 40, 0.95)", color: "white", padding: "8px" }}
                     >
                       {tpl.name}
                     </option>
@@ -300,6 +276,7 @@ const Home = () => {
               </div>
             </div>
             <div className="rounded-[8px] overflow-hidden border border-[#222]">
+              {/* ✅ HTMLEditor is now safe — fully loaded before render via dynamic() */}
               <HTMLEditor value={htmlContent} onChange={handleHTMLChange} />
             </div>
           </div>
@@ -341,10 +318,7 @@ const Home = () => {
               textTransform: "none",
               borderRadius: "8px",
               padding: "10px 24px",
-              "&:hover": {
-                borderColor: "#666",
-                backgroundColor: "rgba(255,255,255,0.02)",
-              }
+              "&:hover": { borderColor: "#666", backgroundColor: "rgba(255,255,255,0.02)" }
             }}
           >
             Reset
@@ -362,13 +336,8 @@ const Home = () => {
               textTransform: "none",
               padding: "10px 32px",
               borderRadius: "8px",
-              "&:hover": {
-                backgroundColor: "#e5e5e5",
-              },
-              "&:disabled": {
-                backgroundColor: "rgba(255,255,255,0.1)",
-                color: "rgba(255,255,255,0.3)",
-              }
+              "&:hover": { backgroundColor: "#e5e5e5" },
+              "&:disabled": { backgroundColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.3)" }
             }}
           >
             {sendEmailLoading ? "Deploying..." : "Deploy Campaign"}
@@ -389,9 +358,8 @@ const Home = () => {
             />
           </div>
         </div>
-
-      </main >
-    </div >
+      </main>
+    </div>
   );
 };
 
