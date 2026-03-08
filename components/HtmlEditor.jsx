@@ -1,8 +1,16 @@
-// components/HTMLEditor.js
-import AceEditor from "react-ace";
-import "ace-builds/src-noconflict/mode-html";
-import "ace-builds/src-noconflict/theme-terminal";
-import "ace-builds/src-noconflict/ext-language_tools";
+import dynamic from 'next/dynamic';
+
+// Dynamically import AceEditor with SSR disabled
+const AceEditor = dynamic(
+  async () => {
+    const ace = await import("react-ace");
+    await import("ace-builds/src-noconflict/mode-html");
+    await import("ace-builds/src-noconflict/theme-terminal");
+    await import("ace-builds/src-noconflict/ext-language_tools");
+    return ace.default;
+  },
+  { ssr: false }
+);
 
 const HTMLEditor = ({ value, onChange }) => {
   return (
