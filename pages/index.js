@@ -1,5 +1,5 @@
 // pages/index.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import HTMLEditor from "../components/HtmlEditor";
 import PreviewScreen from "../components/PreviewScreen";
 import JSONEditor from "@/components/JsonEditor";
@@ -11,6 +11,7 @@ import EmailTable from "@/components/EmailTable";
 import ConsoleLogsBox from "@/components/ConsoleLogBox";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 
 const Home = () => {
@@ -55,7 +56,7 @@ const Home = () => {
         displayText,
         jsonContent,
         (email) => setSentEmails((prevEmails) => [...prevEmails, email]),
-        (error) => setErrorLogs((prevErrors) => [...prevErrors, error])
+        (error) => setErrorLogs((prevErrors) => [...prevErrors, error]),
       );
     } finally {
       setSendEmailLoading(false);
@@ -75,7 +76,6 @@ const Home = () => {
     }
   }, [session, router]);
 
-
   const containerStyles = {
     padding: "1rem",
     borderRadius: "24px 24px 16px 16px",
@@ -87,10 +87,6 @@ const Home = () => {
     border: "0.6px solid #545151",
     transition: "transform 0.3s, background 0.3s",
   };
-
-  if (!session) {
-    return null; // Return null while redirecting to avoid rendering the component
-  }
 
   return (
     <>
@@ -104,10 +100,10 @@ const Home = () => {
               color="success"
               onClick={(e) => {
                 e.preventDefault();
-                router.push("/signUp")
+                router.push("/signUp");
               }}
             >
-            Add User
+              Add User
             </Button>
             <Button
               size="large"
@@ -139,7 +135,7 @@ const Home = () => {
           <div className="w-[50%] max-xl:w-[100%]" style={containerStyles}>
             <h1 className="text-center text-3xl text-white">Mail Editor</h1>
 
-            <HTMLEditor value={htmlContent} onChange={handleHTMLChange} />
+            <HTMLEditor handleChange={handleHTMLChange} />
           </div>
           <div className="w-[50%] max-xl:w-[100%] h-full">
             <PreviewScreen htmlContent={htmlContent} />
