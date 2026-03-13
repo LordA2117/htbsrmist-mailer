@@ -11,38 +11,27 @@ const ConsoleLogsBox = ({ consoleLogs }) => {
     }
   }, [consoleLogs]);
 
-  const containerStyles = {
-    padding: "2rem",
-    borderRadius: "24px 24px 16px 16px",
-    background:
-      "linear-gradient(268.56deg, rgba(150, 150, 150, 0.1), rgba(150, 150, 150, 0.1))",
-    boxShadow:
-      "1.2396273612976074px 1.2396273612976074px 13.64px rgba(0, 0, 0, 0.25) inset",
-    border: "0.6px solid #545151",
-    transition: "transform 0.3s, background 0.3s",
-  };
-
   const errorStyles = {
-    color: "red",
+    color: "#ff5252",
     marginBottom: "1rem",
   };
 
   const sentStatusStyles = {
-    color: "green",
+    color: "#e5e5e5",
     marginBottom: "1rem",
   };
 
   return (
-    <div style={containerStyles} className="h-[500px] overflow-auto">
-      <h2 className="text-center text-3xl">Console</h2>
-      <div className="flex justify-between p-10 gap-2">
-        <div style={errorStyles}>
-          <h3>Error Logs:</h3>
-          <pre ref={logsRef} style={{ whiteSpace: "pre-wrap" }}></pre>
+    <div className="h-full max-h-[500px] overflow-auto p-8 bg-transparent">
+      <h2 className="text-xl font-semibold tracking-tight text-white/90 mb-6 border-b border-white/5 pb-4">Terminal Output</h2>
+      <div className="flex flex-col md:flex-row justify-between gap-8 font-mono text-sm leading-relaxed">
+        <div style={errorStyles} className="w-full md:w-1/2 p-4 bg-[#0a0a0a] rounded-[8px] border border-red-500/30">
+          <h3 className="font-semibold mb-3 border-b border-red-500/30 pb-2">ERROR_STREAM:</h3>
+          <pre ref={logsRef} className="whitespace-pre-wrap mt-2"></pre>
         </div>
-        <div style={sentStatusStyles}>
-          <h3>Sent Status:</h3>
-          <pre ref={logsRef} style={{ whiteSpace: "pre-wrap" }}></pre>
+        <div style={sentStatusStyles} className="w-full md:w-1/2 p-4 bg-[#0a0a0a] rounded-[8px] border border-[#333]">
+          <h3 className="font-semibold mb-3 border-b border-[#333] pb-2 text-gray-400">STDOUT_STREAM:</h3>
+          <pre ref={logsRef} className="whitespace-pre-wrap mt-2"></pre>
         </div>
       </div>
     </div>

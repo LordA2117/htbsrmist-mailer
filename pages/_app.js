@@ -1,8 +1,33 @@
 import "../styles/globals.css";
 import Head from "next/head";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { SessionProvider } from "next-auth/react";
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handleStart = (url) => {
+      if (url !== router.asPath) {
+        setLoading(true);
+      }
+    };
+    const handleComplete = () => setLoading(false);
+    const handleError = () => setLoading(false);
+
+    router.events.on("routeChangeStart", handleStart);
+    router.events.on("routeChangeComplete", handleComplete);
+    router.events.on("routeChangeError", handleError);
+
+    return () => {
+      router.events.off("routeChangeStart", handleStart);
+      router.events.off("routeChangeComplete", handleComplete);
+      router.events.off("routeChangeError", handleError);
+    };
+  }, [router]);
+
   return (
     <>
       <Head>
@@ -60,8 +85,16 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
           rel="stylesheet"
         ></link>
       </Head>
+      
+      {loading && (
+        <div className="htb-loader-overlay">
+          <div className="htb-spinner"></div>
+          <div className="htb-loader-text">INITIALIZING...</div>
+        </div>
+      )}
+
       <SessionProvider session={session}>
-      <Component {...pageProps} />
+        <Component {...pageProps} />
       </SessionProvider>
     </>
   );

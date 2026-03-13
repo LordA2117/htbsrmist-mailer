@@ -1,8 +1,18 @@
 import bcrypt from "bcryptjs";
 import MailerUsers from "../../utils/models/userModel";
 import connectDB from "./auth/lib/connectDB";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "./auth/[...nextauth]";
+
 
 export default async function handler(req, res) {
+  const session = await getServerSession(req, res, authOptions);
+  const ADMIN_EMAILS = ["mailer@htbchennai.in", "test@gmail.com"];
+
+  if (!session || !ADMIN_EMAILS.includes(session.user.email)) {
+    return res.status(403).json({ message: "Forbidden: Only admins can register new users" });
+  }
+
   await connectDB();
 
   if (req.method !== "POST") {
